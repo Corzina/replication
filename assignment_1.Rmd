@@ -1,0 +1,170 @@
+---
+title: "Assignment 1"
+author: "Ilya Fominykh"
+date: '2022-11-13'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+**Part 0. Preparation**
+
+Lets download packag
+
+```{r, include=FALSE}
+#install.packages("QuantPsyc")
+#install.packages("ez")
+#install.packages("corrplot")sss
+```
+
+```{r, message=FALSE, warning=FALSE}
+library(haven)
+library(dplyr)
+library(tidyverse)
+library(foreign)
+library(lattice)
+library(GGally)
+library(psych)
+library(corrplot)
+library(countrycode)
+```
+
+Specify WD IF NEEDED
+
+```{r}
+setwd("C:/Users/danch/Documents/R/replicate_code_for_MSBBSS")
+```
+
+
+**Part 1. Tasks**
+
+The goal of this first assignment part is to find a plot type (scatterplot, box plot, line plot, etc.) that according to you best represents the relations in a multivariate data set of your choice. It does not necessarily has to contain more than one dependent variable, which is the exact meaning of multivariate, but it should contain enough variables that allow for interesting relations, for example interactions. You are free to use any type of R graphics, the basic R graphics, graphics from the lattice package, or any other graphics package you like. Proceed as follows:
+
+**1** Choose a multivariate data set, for example, from the Multivariate Data Analysis course, or another data set you have been working on, but not the data used in this assignment or data from the internet with ready made graphics.
+
+Lets Load the data. I choose World Values Survey Wave 7 (2017-2022) Cross-National data.
+
+```{r}
+WVS <- read.spss(file = "WVS8.sav", use.value.labels = FALSE,  use.missings=TRUE)
+WVS <- as.data.frame(WVS)
+```
+
+
+**2**  Give a general description of the data in text, describe the relevant variables in text and give descriptive statistics.
+
+The WVS data provides survey measurements of individual-level perceptions in a cross-national perspective, n = 87822. There are 552 variables in the data, most of which correpspods to precise concepts such as corruption perception, values, or happiness. The concepts that are measured that can generally be separated into blocks. Their names can be, for example, demographics, economics, politics, work, confidence in life, and so forth. 
+
+auf
+
+To avoid unnecessary complication, we will include only part of variables in our further analysis. More precisely, we include technical variable on country, a block of different trust measurements (trust to everyone, trust to family, trust to neighbours, trust to people you know and trust to people you meet for the first time), indicator of income inequality perceptions (should incomes be more equal or not), sex, age, and index of materialist-postmaterialist values. More precise info on variables can be found in codebook: https://www.worldvaluessurvey.org/WVSDocumentationWV7.jsp
+
+```{r}
+df <- WVS %>%
+  dplyr ::select(B_COUNTRY_ALPHA, Q57, Q58, Q59, Q60, Q61, Q106, Q260, Q262, Y001) %>%
+  dplyr ::rename(iso3 = B_COUNTRY_ALPHA,
+                 generaltrust = Q57,
+                 familytrust = Q58,
+                 neightrust = Q59,
+                 perstrust = Q60,
+                 firstrust = Q61,
+                 incomeeq = Q106,
+                 sex = Q260, 
+                 age = Q262, 
+                 postmat12i = Y001)
+
+head(df)
+```
+
+We also provide all the neccesary descriptive statistics.
+
+```{r}
+describe(df)
+```
+They, hovewer, can be not precise since we have not recoded different cases of the nonresponce yet. Lets imagine that this dataset contain this means, recode and describe again. 
+
+```{r}
+df$generaltrust[df$generaltrust == -1 | df$generaltrust == -2 | df$generaltrust == -5] <- NA
+df$familytrust[df$familytrust == -1 | df$familytrust == -2 | df$familytrust == -5] <- NA
+df$neightrust[df$neightrust == -1 | df$neightrust == -2 | df$neightrust == -5] <- NA
+df$perstrust[df$perstrust == -1 | df$perstrust == -2 | df$perstrust == -5] <- NA
+df$firstrust[df$firstrust == -1 | df$firstrust == -2 | df$firstrust == -5] <- NA
+describe(df)
+```
+
+From this desription and codebook, we can see that
+
+**2.1** Then explain the relations in the data you would like to display in a plot.
+
+There are plenty of opportunities in explaining relations in our data for study purposes. I would personally think it might be interesting to understand whether age and values measured by materilaist-postmaterialist index (Inglehart & Welzel, 2009) are related on average and by specific countries.  
+
+**3**  Choose a plot type and motivate your choice for this particular plot type (explain why this type of plot is useful for the relations you intend to show). If necessary, you can use more than one plot, but try to be as concise as possible. Make the plot(s) as informative as you can. A good plot should be self-contained: someone not familiar with the data should be able to understand immediately what the plot displays. For example, use meaningful labels, titles, legends, etc. Include the plot(s) in the report (see instructions at the end of this document). 
+
+**4** Reflect on the plot: does it show the relationship you were looking for? Is that relationship convincingly shown by the data? What is the role of uncertainty?
+
+We will reflect on every plot as soon as we provide it. lets firstly visualize correlations since it will give us general understanding about how variables are related to each other, whether there are high risks of meeting multicollinearity, opportunities to implement factorial analysis and so fourth.
+
+```{r}
+data_cor <- df %>%
+  dplyr::select(generaltrust, familytrust,
+                neightrust, perstrust,
+                firstrust, incomeeq,
+                sex, age, postmat12i)
+Matrix <-cor(na.omit(data_cor))
+col <- colorRampPalette(c("#BB4444", "#EE9988", "#FFFFFF", "#77AADD", "#4477AA"))
+corrplot(Matrix, method="color", col=col(200), order="alphabet", addCoef.col = "black", tl.col="black", tl.srt=35)
+```
+
+What this data tells to us? We use pearson correlations to address categorial and binary data, which is probably not the best choice. However, we can see that different form of trust are pretty related to each other.
+
+Secondly, lets explore the relationship, for example, between age and values with ggplot package. 
+
+```{r}
+ggplot(df, aes(x=postmat12i, y=age)) +
+  geom_point(size=2, shape=23)
+
+```
+
+Since we work with categorial variables and large data sets, as it can be seen, scatterplots are *not* the best choice. lest use boxplots instead.
+
+```{r}
+df$postmat12i <- as.factor(df$postmat12i)
+
+ggplot(na.omit(df), aes(x=postmat12i, y=age, color=postmat12i)) +
+  geom_boxplot(fill='White') +
+  labs(color = "Level of\n Postmaterialism", title="Age by values",x="Postmaterialism Index", y = "Age")
+```
+
+As with correlations, we can't see any strong linearships between age and values. However, means are pretty similar for all means of our factor variable, which also stands against our hypotheses that values do differ significantly among age groups. But further investigation in models is needed so we will be able to check for significanes of differences. For now, we only know, for example, average age of weak postmaterialists is around 37, and average age of strong materialist is around 43. We also conclude that on average there are more people which are not strong materilasts nor postmaterialists (smaller variation for average means of postmaterialism = 2-3) So the graph verify previously accquired results.
+
+However, differences theoretically can be more significant if we choose cpecific countries.  Thirdly, to be more precise and exlude unnecesary variation, lets select only 2 countries: USA and GREECE, both for correlations and plots
+
+```{r}
+df$iso3 <- gsub(" ", "", df$iso3, fixed = TRUE)
+df2 <- subset(df, iso3 %in% c("GRC", "USA"))
+
+data_cor <- df2 %>%
+  dplyr::select(generaltrust, familytrust,
+                neightrust, perstrust,
+                firstrust, incomeeq,
+                sex, age, postmat12i)
+data_cor$postmat12i <- as.double(data_cor$postmat12i)
+
+Matrix <-cor(na.omit(data_cor))
+col <- colorRampPalette(c("#BB4444", "#EE9988", "#FFFFFF", "#77AADD", "#4477AA"))
+corrplot(Matrix, method="color", col=col(200), order="alphabet", addCoef.col = "black", tl.col="black", tl.srt=35)
+
+```
+
+The results differ, but they are pretty similar. this happens because our n changed. But we still cant see any strong correlations. 
+
+```{r}
+df2$postmat12i <- as.factor(df2$postmat12i)
+
+ggplot(na.omit(df2), aes(x=postmat12i, y=age, color=postmat12i)) +
+  geom_boxplot(fill='White') +
+  labs(color = "Level of\n Postmaterialism", title="Age by values",x="Postmaterialism Index", y = "Age")
+```
+
+Now results are more interesting: we see more differences both in variance and mean values across different values of postmaterialism index. For example, we can see that average age of Strong materialists is 50, while average age of strong postmaterialists is 37, which do corresponds well to our hypotheses. From these graphs we conclude that further analysis of significance in differences is needed, and this analysis must be implemented in taking cross-national variation into account. If we work on pooled data with no regard to country belonging of the respondent, we "wash away" the significance of the differences since 45-old man is Sweden in not as conservative as 45-years old man in Sudan. 
