@@ -31,7 +31,7 @@ library(corrplot)
 library(countrycode)
 ```
 
-Specify WD IF NEEDED
+WHY cant i change it
 
 **Part 1. Tasks**
 
@@ -57,17 +57,17 @@ To avoid unnecessary complication, we will include only part of variables in our
 
 ```{r}
 #df <- WVS %>%
-  dplyr ::select(B_COUNTRY_ALPHA, Q57, Q58, Q59, Q60, Q61, Q106, Q260, Q262, Y001) %>%
-  dplyr ::rename(iso3 = B_COUNTRY_ALPHA,
-                 generaltrust = Q57,
-                 familytrust = Q58,
-                 neightrust = Q59,
-                 perstrust = Q60,
-                 firstrust = Q61,
-                 incomeeq = Q106,
-                 sex = Q260, 
-                 age = Q262, 
-                 postmat12i = Y001)
+#  dplyr ::select(B_COUNTRY_ALPHA, Q57, Q58, Q59, Q60, Q61, Q106, Q260, Q262, Y001) %>%
+#  dplyr ::rename(iso3 = B_COUNTRY_ALPHA,
+#                 generaltrust = Q57,
+#                 familytrust = Q58,
+#                 neightrust = Q59,
+#                 perstrust = Q60,
+#                firstrust = Q61,
+#                 incomeeq = Q106,
+#                 sex = Q260, 
+#                 age = Q262, 
+#                 postmat12i = Y001)
 
 df <- WVS
 head(df)
