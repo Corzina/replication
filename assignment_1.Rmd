@@ -33,7 +33,6 @@ library(countrycode)
 
 Specify WD IF NEEDED
 
-
 **Part 1. Tasks**
 
 The goal of this first assignment part is to find a plot type (scatterplot, box plot, line plot, etc.) that according to you best represents the relations in a multivariate data set of your choice. It does not necessarily has to contain more than one dependent variable, which is the exact meaning of multivariate, but it should contain enough variables that allow for interesting relations, for example interactions. You are free to use any type of R graphics, the basic R graphics, graphics from the lattice package, or any other graphics package you like. Proceed as follows:
