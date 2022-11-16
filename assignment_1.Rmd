@@ -33,10 +33,6 @@ library(countrycode)
 
 Specify WD IF NEEDED
 
-```{r}
-setwd("C:/Users/danch/Documents/R/replicate_code_for_MSBBSS")
-```
-
 
 **Part 1. Tasks**
 
@@ -61,7 +57,7 @@ auf
 To avoid unnecessary complication, we will include only part of variables in our further analysis. More precisely, we include technical variable on country, a block of different trust measurements (trust to everyone, trust to family, trust to neighbours, trust to people you know and trust to people you meet for the first time), indicator of income inequality perceptions (should incomes be more equal or not), sex, age, and index of materialist-postmaterialist values. More precise info on variables can be found in codebook: https://www.worldvaluessurvey.org/WVSDocumentationWV7.jsp
 
 ```{r}
-df <- WVS %>%
+#df <- WVS %>%
   dplyr ::select(B_COUNTRY_ALPHA, Q57, Q58, Q59, Q60, Q61, Q106, Q260, Q262, Y001) %>%
   dplyr ::rename(iso3 = B_COUNTRY_ALPHA,
                  generaltrust = Q57,
@@ -74,6 +70,7 @@ df <- WVS %>%
                  age = Q262, 
                  postmat12i = Y001)
 
+df <- WVS
 head(df)
 ```
 
